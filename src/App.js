@@ -63,9 +63,10 @@ function App() {
       const user = await getUser(accessToken)
       const success = await invite(user)
       if (success) {
-        setProgress('sucess')
+        setProgress('success')
       }
     } catch (e) {
+      console.log(e)
       setProgress('error')
     }
   }

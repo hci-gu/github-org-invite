@@ -34,10 +34,13 @@ export const openOauth = async ({ clientId, id }) => {
     )
     let success
     window.addEventListener('message', (message) => {
-      if (message.data) {
-        const response = JSON.parse(message.data)
-        success = response.success
-        resolve(response.accessToken)
+      let data
+      if (message.data && typeof message.data === 'string') {
+        data = JSON.parse(message.data)
+      }
+      if (data && data.success !== undefined) {
+        success = data.success
+        resolve(data.accessToken)
       }
     })
 
