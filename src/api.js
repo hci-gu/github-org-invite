@@ -15,8 +15,7 @@ export const invite = async (user) => {
   const response = await axios.post(`${API_URL}/invite`, {
     userId: user.id,
   })
-  console.log(response)
-  return response.data.success
+  return response.data.message
 }
 
 export const getClient = async () => {

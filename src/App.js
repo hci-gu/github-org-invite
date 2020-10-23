@@ -61,15 +61,14 @@ function App() {
       setProgress('pending')
       const accessToken = await openOauth(client)
       const user = await getUser(accessToken)
-      const success = await invite(user)
-      if (success) {
-        setProgress('success')
-      }
+      const status = await invite(user)
+      setProgress(status)
     } catch (e) {
       console.log(e)
       setProgress('error')
     }
   }
+  console.log(progress)
 
   return (
     <Container>
@@ -98,6 +97,13 @@ function App() {
             inbjudan skickad manuellt.
           </span>
         )}
+        {progress === 'already-member' && (
+          <span>
+            Du verkar redan vara inbjuden till organisationen. Om du ändå inte
+            är det så kan du kontakta oss via Canvas för att få inbjudan skickad
+            manuellt.
+          </span>
+        )}
       </Text>
       {client && !progress && (
         <GithubLoginButton onClick={onGithubLogin} style={{ width: 200 }}>
@@ -109,7 +115,7 @@ function App() {
           <PacmanLoader size={100} color="#273A99" />
         </Progress>
       )}
-      {(progress === 'success' || progress === 'error') && (
+      {['success', 'error', 'already-member'].includes(progress) && (
         <Result>
           <ReactSVG src={`/svg/${progress}.svg`} />
         </Result>
