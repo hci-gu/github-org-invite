@@ -74,11 +74,11 @@ function App() {
     <Container>
       <Text>
         <h1>
-          Hej och välkommen till TIG169 - programmering för mobile enheter.
+          Hej och välkommen till TIG169 - programmering för mobila enheter.
         </h1>
         {!progress && (
           <span>
-            Klicka på knappen nedan för att logga in med ditt Github konto så
+            Klicka på knappen nedan för att logga in med ditt Github-konto så
             blir du inbjuden till organisationen där kursens uppgifter kommer
             utföras.
           </span>
@@ -87,13 +87,13 @@ function App() {
         {progress === 'success' && (
           <span>
             Du ska nu ha fått en inbjudan till mailen du registrerade ditt
-            Github konto med.
+            Github-konto med.
           </span>
         )}
         {progress === 'error' && (
           <span>
-            Något gick fel, vänligen refresha sidan och försök igen. Om det
-            fortfarande inte funkar så kan du kontakta oss direkt för att få
+            Något gick fel, vänligen ladda om sidan och försök igen. Om det
+            fortfarande inte funkar så kan du kontakta oss direkt på Canvas för att få
             inbjudan skickad manuellt.
           </span>
         )}
