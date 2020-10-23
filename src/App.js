@@ -1,65 +1,56 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import styled from 'styled-components'
+import { GithubLoginButton } from 'react-social-login-buttons'
+import { PacmanLoader } from 'react-spinners'
+import { ReactSVG } from 'react-svg'
 
-const API_URL = process.env.REACT_APP_API_URL
+import { getUser, invite, getClient, openOauth } from './api'
 
-const getUser = async (accessToken) => {
-  const response = await axios.get('https://api.github.com/user', {
-    headers: {
-      Authorization: `token ${accessToken}`,
-    },
-  })
+const Container = styled.div`
+  margin: 0 auto;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
 
-  return response.data
-}
+  justify-content: center;
+  align-items: center;
 
-const invite = async (user) => {
-  const response = await axios.post(`${API_URL}/invite`, {
-    userId: user.id,
-  })
-  console.log(response)
-  return response.data.success
-}
+  @media (max-width: 640px) {
+    width: 100%;
+  }
+`
 
-const getClient = async () => {
-  const response = await axios.get(`${API_URL}/oauth`)
+const Text = styled.div`
+  padding: 1em;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
 
-  return response.data
-}
+  justify-content: center;
+  align-items: center;
 
-const openOauth = async ({ clientId, id }) => {
-  return new Promise((resolve, reject) => {
-    const popup = window.open(
-      `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${API_URL}/oauth/callback&state=${id}`,
-      id,
-      'width=600,height=1000,menubar=no,location=no,resizable=no,scrollbars=no,status=no'
-    )
-    let success
-    window.addEventListener('message', (message) => {
-      if (message.data) {
-        const response = JSON.parse(message.data)
-        success = response.success
-        resolve(response.accessToken)
-      }
-    })
+  > h1,
+  span {
+    text-align: center;
+    text-align: center;
+  }
+`
 
-    let interval = setInterval(() => {
-      try {
-        if (!popup || popup.closed) {
-          clearInterval(interval)
-          if (!success) reject('window closed')
-          return
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    }, 500)
-  })
-}
+const Progress = styled.div`
+  margin-top: 25px;
+  margin-left: -200px;
+`
+
+const Result = styled.div`
+  margin-top: 25px;
+  svg {
+    height: 200px;
+  }
+`
 
 function App() {
   const [client, setClient] = useState(null)
-  const [progress, setProgress] = useState(null)
+  const [progress, setProgress] = useState()
 
   useEffect(() => {
     getClient().then((client) => setClient(client))
@@ -69,9 +60,7 @@ function App() {
     try {
       setProgress('pending')
       const accessToken = await openOauth(client)
-      console.log('accessToken', accessToken)
       const user = await getUser(accessToken)
-      console.log('user', user)
       const success = await invite(user)
       if (success) {
         setProgress('sucess')
@@ -82,12 +71,49 @@ function App() {
   }
 
   return (
-    <div>
+    <Container>
+      <Text>
+        <h1>
+          Hej och välkommen till TIG169 - programmering för mobile enheter.
+        </h1>
+        {!progress && (
+          <span>
+            Klicka på knappen nedan för att logga in med ditt Github konto så
+            blir du inbjuden till organisationen där kursens uppgifter kommer
+            utföras.
+          </span>
+        )}
+        {progress === 'pending' && <span>Väntar på svar från Github...</span>}
+        {progress === 'success' && (
+          <span>
+            Du ska nu ha fått en inbjudan till mailen du registrerade ditt
+            Github konto med.
+          </span>
+        )}
+        {progress === 'error' && (
+          <span>
+            Något gick fel, vänligen refresha sidan och försök igen. Om det
+            fortfarande inte funkar så kan du kontakta oss direkt för att få
+            inbjudan skickad manuellt.
+          </span>
+        )}
+      </Text>
       {client && !progress && (
-        <button onClick={onGithubLogin}>Login with github</button>
+        <GithubLoginButton onClick={onGithubLogin} style={{ width: 200 }}>
+          Login with github
+        </GithubLoginButton>
       )}
-      {progress}
-    </div>
+      {progress === 'pending' && (
+        <Progress>
+          <PacmanLoader size={100} color="#273A99" />
+        </Progress>
+      )}
+      {(progress === 'success' || progress === 'error') && (
+        <Result>
+          <ReactSVG src={`/svg/${progress}.svg`} />
+        </Result>
+      )}
+    </Container>
   )
 }
 
