@@ -48,9 +48,19 @@ const Result = styled.div`
   }
 `
 
+const UsernameInput = styled.input`
+  font-size: 18px;
+  padding: 10px;
+  margin: 10px;
+  background: #fafafa;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+`
+
 function App() {
   const [client, setClient] = useState(null)
-  const [progress, setProgress] = useState()
+  const [{ progress, repository }, setProgress] = useState({})
+  const [username, setUsername] = useState('')
 
   useEffect(() => {
     getClient().then((client) => setClient(client))
@@ -61,14 +71,16 @@ function App() {
       setProgress('pending')
       const accessToken = await openOauth(client)
       const user = await getUser(accessToken)
-      const status = await invite(user)
-      setProgress(status)
+      const inviteResponse = await invite(user, username)
+      setProgress({
+        progress: inviteResponse.message,
+        repository: inviteResponse.repository,
+      })
     } catch (e) {
       console.log(e)
       setProgress('error')
     }
   }
-  console.log(progress)
 
   return (
     <Container>
@@ -78,23 +90,28 @@ function App() {
         </h1>
         {!progress && (
           <span>
-            Klicka på knappen nedan för att logga in med ditt Github-konto så
-            blir du inbjuden till organisationen där kursens uppgifter kommer
-            utföras.
+            Skriv in ditt användarnamn i Canvas nedan och klicka på knappen
+            nedan för att logga in med ditt Github-konto så blir du inbjuden
+            till organisationen där kursens uppgifter kommer utföras.
           </span>
         )}
         {progress === 'pending' && <span>Väntar på svar från Github...</span>}
         {progress === 'success' && (
           <span>
             Du ska nu ha fått en inbjudan till mailen du registrerade ditt
-            Github-konto med.
+            Github-konto med. Github repo där du ska lämna in uppgifter finns nu{' '}
+            <a href={repository} target="_blank">
+              här
+            </a>{' '}
+            det finns instruktioner i Canvas för hur du laddar hem koden samt
+            gör inlämningen.
           </span>
         )}
         {progress === 'error' && (
           <span>
             Något gick fel, vänligen ladda om sidan och försök igen. Om det
-            fortfarande inte funkar så kan du kontakta oss direkt på Canvas för att få
-            inbjudan skickad manuellt.
+            fortfarande inte funkar så kan du kontakta oss direkt på Canvas för
+            att få inbjudan skickad manuellt.
           </span>
         )}
         {progress === 'already-member' && (
@@ -106,7 +123,17 @@ function App() {
         )}
       </Text>
       {client && !progress && (
-        <GithubLoginButton onClick={onGithubLogin} style={{ width: 200 }}>
+        <UsernameInput
+          placeholder="T.ex. gusandse"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      )}
+      {client && !progress && (
+        <GithubLoginButton
+          onClick={onGithubLogin}
+          style={{ width: 200, opacity: username.length ? 1 : 0.5 }}
+        >
           Login with github
         </GithubLoginButton>
       )}

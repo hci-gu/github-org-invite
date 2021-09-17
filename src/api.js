@@ -11,11 +11,12 @@ export const getUser = async (accessToken) => {
   return response.data
 }
 
-export const invite = async (user) => {
+export const invite = async (user, canvasUsername) => {
   const response = await axios.post(`${API_URL}/invite`, {
     userId: user.id,
+    canvasUsername,
   })
-  return response.data.message
+  return response.data
 }
 
 export const getClient = async () => {
