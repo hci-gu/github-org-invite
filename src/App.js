@@ -68,7 +68,7 @@ function App() {
 
   const onGithubLogin = async () => {
     try {
-      setProgress('pending')
+      setProgress({ progress: 'pending' })
       const accessToken = await openOauth(client)
       const user = await getUser(accessToken)
       const inviteResponse = await invite(user, username)
@@ -78,7 +78,7 @@ function App() {
       })
     } catch (e) {
       console.log(e)
-      setProgress('error')
+      setProgress({ progress: 'error' })
     }
   }
 
@@ -90,16 +90,21 @@ function App() {
         </h1>
         {!progress && (
           <span>
-            Skriv in ditt användarnamn i Canvas nedan och klicka på knappen
-            nedan för att logga in med ditt Github-konto så blir du inbjuden
-            till organisationen där kursens uppgifter kommer utföras.
+            Skriv in ditt x-konto och klicka på knappen nedan för att logga in
+            med ditt Github-konto så blir du inbjuden till organisationen där
+            kursens uppgifter kommer utföras.
+            <br></br>
+            <br></br>
+            För att vi ska veta vilken inlämnad uppgift som är din behöver du
+            skriva in rätt x-konto.
           </span>
         )}
         {progress === 'pending' && <span>Väntar på svar från Github...</span>}
         {progress === 'success' && (
           <span>
             Du ska nu ha fått en inbjudan till mailen du registrerade ditt
-            Github-konto med. Github repo där du ska lämna in uppgifter finns nu{' '}
+            Github-konto med. Det Github repo där du ska lämna in uppgifter
+            finns nu{' '}
             <a href={repository} target="_blank">
               här
             </a>{' '}
